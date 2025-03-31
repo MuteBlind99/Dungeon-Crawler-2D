@@ -1,11 +1,15 @@
 using UnityEngine;
 using Pathfinding;
+using Unity.VisualScripting;
 
 public class AIAgentFleeNear : MonoBehaviour
 {
     private AIPath aiPath;
     [SerializeField] private float moveSpeed;
     [SerializeField] private Transform target;
+    [SerializeField]private BombInitiate bombInitiate;
+    [SerializeField] private float cooldownDropBomb = 2f;
+    private float timerSetBomb = 2f;
     private float distanceToTarget;
 
     [SerializeField] private float stoppingDistanceThreshold;
@@ -31,6 +35,7 @@ public class AIAgentFleeNear : MonoBehaviour
         //Move to target position
         //aiPath.destination = target.position;
         distanceToTarget = Vector3.Distance(transform.position, target.position);
+        //if player not seen
         if (distanceToTarget > stoppingDistanceThreshold)
         {
             //Chase when the player is far
@@ -39,7 +44,7 @@ public class AIAgentFleeNear : MonoBehaviour
             
             animator.SetBool("Walk", false);
             animator.SetBool("Idle", true);
-           
+            timerSetBomb = 2f;
             //Chase when player is near
             // aiPath.destination = target.position;
         }
@@ -50,7 +55,12 @@ public class AIAgentFleeNear : MonoBehaviour
             var destination = (transform.position - target.position);
             //Chase when the player is far
             aiPath.destination = destination;
-
+            timerSetBomb+=Time.deltaTime;
+            if (cooldownDropBomb < timerSetBomb)
+            {
+                timerSetBomb = 0f;
+                bombInitiate.DropBomb();
+            }
             //Chase when player is near
             // aiPath.destination=transform.position;
         }
